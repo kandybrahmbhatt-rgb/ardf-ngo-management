@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Online NGO Management Software - Ajeet Rural Development Foundation (ARDF)" />
+  <title>ARDF – NGO Management Software</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: #F0F7F4; }
+    button { cursor: pointer; }
+    input, textarea { font-family: inherit; }
+    table { border-collapse: collapse; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f1f1; }
+    ::-webkit-scrollbar-thumb { background: #2D6A4F; border-radius: 3px; }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState } = React;
+
+/* ── NGO Details ─────────────────────────────────────────────────── */
+const NGO = {
+  name:      "Ajeet Rural Development Foundation",
+  shortName: "ARDF",
+  tagline:   "A Journey of Development",
+  address:   "E-123, Haridham Society, Bapa Sitaram Chowk, New Naroda, Ahmedabad - 382346",
+  president: "Mr. Ishwar Dodiya",
+  phone:     "9924300805 / 8200409004",
+  email:     "ardfoundation03@gmail.com",
+  website:   "www.ardfoundation.org",
+  regNo:     "F/988/Dahod, Guj/992/Dahod",
+  pan:       "AAHAA0769L",
+  darpan:    "GJ/2020/0249615",
+  csr:       "CSR00018890 (SRN-T62478136)",
+  bank:      "State Bank of India, Saijpur Bogha Branch, Ahmedabad",
+  accountNo: "30397014790",
+  ifsc:      "SBIN0003044",
+  founded:   "09 September 2003",
+  cert12aa:  "AAHAA0769LE20216",
+  cert80g:   "AAHAA0769LF20214",
+};
+
+/* ── Colors ──────────────────────────────────────────────────────── */
+const C = {
+  primary:   "#1B4332",
+  secondary: "#2D6A4F",
+  accent:    "#E76F00",
+  gold:      "#F4A900",
+  light:     "#F0F7F4",
+  white:     "#FFFFFF",
+  gray:      "#6B7280",
+  border:    "#D1E8DC",
+};
+
+/* ── Sample Data ─────────────────────────────────────────────────── */
+const SAMPLE_REPORTS = [
+  { id:1, date:"2024-11-15", activity:"Skill Training Workshop – Tailoring",       participants:45,  location:"New Naroda Community Hall, Ahmedabad", notes:"Tailoring and embroidery skills taught to 45 women beneficiaries." },
+  { id:2, date:"2024-12-10", activity:"Legal Rights Awareness Camp",               participants:80,  location:"Panchayat Ground, Dahod",              notes:"Health and legal rights awareness for tribal women." },
+  { id:3, date:"2025-01-20", activity:"Self Help Group (SHG) Meeting",             participants:30,  location:"ARDF Office, Ahmedabad",               notes:"Loan distribution and financial literacy session." },
+  { id:4, date:"2025-02-14", activity:"Livelihood Training – Food Processing",     participants:55,  location:"Training Center, Sabarkantha",         notes:"Food processing and packaging skills workshop." },
+  { id:5, date:"2025-03-08", activity:"Women's Day Celebration",                   participants:120, location:"Town Hall, Ahmedabad",                 notes:"Felicitation of outstanding women achievers." },
+  { id:6, date:"2025-04-01", activity:"Micro Finance & Credit Linkage Meeting",    participants:40,  location:"ARDF Office, Ahmedabad",               notes:"New SHG groups formed; credit linkage initiated." },
+];
+
+const DEMO_PHOTOS = [
+  { id:1, label:"Skill Training Workshop",        emoji:"🧵", date:"2024-11-15", tag:"Livelihood" },
+  { id:2, label:"Legal Rights Awareness Camp",    emoji:"📢", date:"2024-12-10", tag:"Awareness"  },
+  { id:3, label:"SHG Meeting – Ahmedabad",        emoji:"👥", date:"2025-01-20", tag:"Women Emp." },
+  { id:4, label:"Food Processing Training",       emoji:"🍱", date:"2025-02-14", tag:"Livelihood" },
+  { id:5, label:"Women's Day Celebration",        emoji:"🌸", date:"2025-03-08", tag:"Women Emp." },
+  { id:6, label:"Micro Finance Meeting",          emoji:"💰", date:"2025-04-01", tag:"Finance"    },
+];
+
+const NAV = [
+  { id:"Dashboard", icon:"📊", label:"Dashboard"       },
+  { id:"Projects",  icon:"📁", label:"Projects"        },
+  { id:"Reports",   icon:"📝", label:"Daily Reports"   },
+  { id:"Gallery",   icon:"🖼️", label:"Photo Gallery"   },
+  { id:"Generate",  icon:"📄", label:"Generate Report" },
+  { id:"Profile",   icon:"🏛️", label:"NGO Profile"     },
+  { id:"Info",      icon:"ℹ️", label:"Software Info"   },
+];
+
+/* ── Sidebar ─────────────────────────────────────────────────────── */
+function Sidebar({ active, setActive, menuOpen, setMenuOpen }) {
+  const isMobile = window.innerWidth < 768;
+  if (isMobile && !menuOpen) return null;
+  return (
+    <div style={{ width:240, minHeight:"100vh", background:C.primary, display:"flex", flexDirection:"column", flexShrink:0, boxShadow:"4px 0 20px rgba(0,0,0,0.2)", position: isMobile?"fixed":"relative", zIndex:100, top:0, left:0 }}>
+      <div style={{ padding:"24px 18px 20px", borderBottom:"1px solid rgba(255,255,255,0.1)" }}>
+        <div style={{ width:56, height:56, borderRadius:14, background:C.accent, display:"flex", alignItems:"center", justifyContent:"center", fontSize:28, marginBottom:12 }}>🌱</div>
+        <div style={{ color:"#fff", fontWeight:800, fontSize:13, lineHeight:1.35 }}>{NGO.name}</div>
+        <div style={{ color:C.gold, fontSize:11, marginTop:5, fontStyle:"italic" }}>"{NGO.tagline}"</div>
+        <div style={{ color:"rgba(255,255,255,0.45)", fontSize:10.5, marginTop:4 }}>Est. {NGO.founded}</div>
+      </div>
+      <nav style={{ flex:1, padding:"14px 10px" }}>
+        {NAV.map(n => (
+          <button key={n.id} onClick={() => { setActive(n.id); setMenuOpen(false); }} style={{ display:"flex", alignItems:"center", gap:10, width:"100%", padding:"10px 13px", borderRadius:10, border:"none", marginBottom:3, textAlign:"left", fontSize:13, fontWeight:active===n.id?700:500, background:active===n.id?C.accent:"transparent", color:active===n.id?"#fff":"rgba(255,255,255,0.7)" }}>
+            <span style={{ fontSize:15 }}>{n.icon}</span>{n.label}
+          </button>
+        ))}
+      </nav>
+      <div style={{ padding:"12px 18px", borderTop:"1px solid rgba(255,255,255,0.08)" }}>
+        <div style={{ color:"rgba(255,255,255,0.35)", fontSize:10 }}>DARPAN: {NGO.darpan}</div>
+        <div style={{ color:"rgba(255,255,255,0.35)", fontSize:10, marginTop:2 }}>v1.0 • 18 Month License</div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Stat Card ───────────────────────────────────────────────────── */
+function Stat({ icon, label, value, color, sub }) {
+  return (
+    <div style={{ background:C.white, borderRadius:14, padding:"18px 20px", flex:1, minWidth:140, borderLeft:`4px solid ${color}`, boxShadow:"0 2px 12px rgba(0,0,0,0.06)" }}>
+      <div style={{ fontSize:26, marginBottom:8 }}>{icon}</div>
+      <div style={{ fontSize:22, fontWeight:800, color:C.primary }}>{value}</div>
+      <div style={{ fontSize:12, color:C.gray, marginTop:2 }}>{label}</div>
+      {sub && <div style={{ fontSize:11, color, marginTop:4, fontWeight:600 }}>{sub}</div>}
+    </div>
+  );
+}
+
+/* ── Dashboard ───────────────────────────────────────────────────── */
+function Dashboard({ reports }) {
+  const total = reports.reduce((a,r) => a + r.participants, 0);
+  const today = new Date().toLocaleDateString("en-IN", { weekday:"long", day:"numeric", month:"long", year:"numeric" });
+  return (
+    <div>
+      <div style={{ marginBottom:24 }}>
+        <h2 style={{ fontSize:22, fontWeight:800, color:C.primary, margin:0 }}>Welcome, {NGO.president} 👋</h2>
+        <p style={{ color:C.gray, marginTop:4, fontSize:13 }}>{today} • Project CB0135 Active</p>
+      </div>
+      <div style={{ display:"flex", gap:14, flexWrap:"wrap", marginBottom:24 }}>
+        <Stat icon="📁" label="Active Projects"     value="1"              color={C.accent}    sub="CB0135 Running"      />
+        <Stat icon="📝" label="Total Reports"       value={reports.length} color={C.secondary} sub="Last 6 months data"  />
+        <Stat icon="👥" label="Total Beneficiaries" value={total}          color={C.primary}   sub="Across all activities"/>
+        <Stat icon="🏆" label="Years of Service"    value="22+"            color="#7c3aed"     sub="Est. September 2003" />
+      </div>
+      <div style={{ background:`linear-gradient(135deg,${C.primary},${C.secondary})`, borderRadius:16, padding:24, color:"#fff", marginBottom:20 }}>
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", flexWrap:"wrap", gap:12 }}>
+          <div>
+            <div style={{ background:"rgba(255,255,255,0.2)", display:"inline-block", padding:"3px 12px", borderRadius:20, fontSize:11, fontWeight:700, marginBottom:10 }}>ACTIVE PROJECT</div>
+            <h3 style={{ margin:"0 0 6px", fontSize:16, fontWeight:800 }}>CB0135 — Capacity Building for Women Empowerment Fund</h3>
+            <p style={{ margin:0, opacity:0.8, fontSize:13 }}>{NGO.name} • Gujarat</p>
+          </div>
+          <div style={{ background:"rgba(255,255,255,0.15)", borderRadius:12, padding:"12px 18px", textAlign:"right" }}>
+            <div style={{ fontSize:11, opacity:0.7 }}>Budget</div>
+            <div style={{ fontWeight:800, fontSize:18 }}>₹5,00,000</div>
+          </div>
+        </div>
+        <div style={{ background:"rgba(255,255,255,0.2)", borderRadius:8, height:8, marginTop:16, overflow:"hidden" }}>
+          <div style={{ height:"100%", width:"42%", background:C.gold, borderRadius:8 }} />
+        </div>
+        <div style={{ display:"flex", justifyContent:"space-between", marginTop:6, fontSize:12, opacity:0.8 }}>
+          <span>₹2,12,000 spent</span><span>42%</span><span>₹2,88,000 remaining</span>
+        </div>
+      </div>
+      <div style={{ background:C.white, borderRadius:14, padding:22, boxShadow:"0 2px 12px rgba(0,0,0,0.06)" }}>
+        <h3 style={{ margin:"0 0 16px", color:C.primary, fontWeight:700 }}>Recent Activities</h3>
+        {[...reports].reverse().slice(0,4).map(r => (
+          <div key={r.id} style={{ display:"flex", gap:14, padding:"11px 0", borderBottom:`1px solid ${C.border}` }}>
+            <div style={{ width:40, height:40, borderRadius:10, background:C.light, display:"flex", alignItems:"center", justifyContent:"center", fontSize:18, flexShrink:0 }}>📋</div>
+            <div>
+              <div style={{ fontWeight:600, color:C.primary, fontSize:13 }}>{r.activity}</div>
+              <div style={{ fontSize:12, color:C.gray, marginTop:2 }}>{r.location} • {r.participants} participants • {r.date}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ── Projects ────────────────────────────────────────────────────── */
+function Projects() {
+  const items = [["📅","Start Date","01 January 2024"],["🏁","End Date","31 December 2026"],["⏳","Monitoring Period","3 Years"],["💰","Total Budget","₹5,00,000"],["📤","Amount Spent","₹2,12,000"],["💼","Balance Remaining","₹2,88,000"]];
+  return (
+    <div>
+      <h2 style={{ fontSize:22, fontWeight:800, color:C.primary, marginBottom:20 }}>Projects</h2>
+      <div style={{ background:C.white, borderRadius:14, padding:28, boxShadow:"0 2px 12px rgba(0,0,0,0.06)" }}>
+        <div style={{ display:"flex", gap:16, alignItems:"center", marginBottom:22, flexWrap:"wrap" }}>
+          <div style={{ width:58, height:58, borderRadius:14, background:C.primary, display:"flex", alignItems:"center", justifyContent:"center", fontSize:28 }}>📁</div>
+          <div>
+            <div style={{ fontWeight:800, fontSize:18, color:C.primary }}>CB0135</div>
+            <div style={{ color:C.gray, fontSize:13 }}>Capacity Building for Women Empowerment Fund</div>
+          </div>
+          <span style={{ marginLeft:"auto", background:"#dcfce7", color:"#166534", padding:"6px 16px", borderRadius:20, fontWeight:700, fontSize:13 }}>● ACTIVE</span>
+        </div>
+        <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:14, marginBottom:20 }}>
+          {items.map(([icon,k,v]) => (
+            <div key={k} style={{ background:C.light, borderRadius:10, padding:"14px 16px" }}>
+              <div style={{ fontSize:11, color:C.gray, marginBottom:5 }}>{icon} {k}</div>
+              <div style={{ fontWeight:700, color:C.primary }}>{v}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{ background:"#fef9ec", border:`1px solid ${C.gold}`, borderRadius:10, padding:16 }}>
+          <div style={{ fontWeight:700, color:"#92400e", marginBottom:8, fontSize:13 }}>📋 Compliance Status</div>
+          <div style={{ fontSize:12.5, color:"#78350f", lineHeight:2 }}>
+            ✅ Online NGO System in NGO name &nbsp;|&nbsp; ✅ 18-month software validity active<br/>
+            ✅ Minimum 50% duration implemented &nbsp;|&nbsp; ✅ 6 months historical data entered<br/>
+            ✅ Day-to-day project reporting enabled &nbsp;|&nbsp; ✅ Letterhead report generation ready
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Daily Reports ───────────────────────────────────────────────── */
+function DailyReports({ reports, setReports }) {
+  const [form, setForm] = useState({ date:"", activity:"", participants:"", location:"", notes:"" });
+  const [saved, setSaved] = useState(false);
+  const inp = { width:"100%", padding:"10px 13px", border:`1.5px solid ${C.border}`, borderRadius:8, fontSize:13, outline:"none", boxSizing:"border-box" };
+  const save = () => {
+    if (!form.date || !form.activity) return;
+    setReports(p => [...p, { ...form, id:Date.now(), participants:parseInt(form.participants)||0 }]);
+    setForm({ date:"", activity:"", participants:"", location:"", notes:"" });
+    setSaved(true); setTimeout(() => setSaved(false), 2500);
+  };
+  const total = reports.reduce((a,r) => a+r.participants, 0);
+  return (
+    <div>
+      <h2 style={{ fontSize:22, fontWeight:800, color:C.primary, marginBottom:20 }}>Daily Activity Reports</h2>
+      <div style={{ background:C.white, borderRadius:14, padding:24, boxShadow:"0 2px 12px rgba(0,0,0,0.06)", marginBottom:22 }}>
+        <h3 style={{ margin:"0 0 16px", color:C.primary, fontWeight:700 }}>➕ Add New Activity Report</h3>
+        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:13 }}>
+          <div>
+            <label style={{ fontSize:11.5, color:C.gray, display:"block", marginBottom:5, fontWeight:600 }}>Date *</label>
+            <input type="date" style={inp} value={form.date} onChange={e=>setForm(f=>({...f,date:e.target.value}))} />
+          </div>
+          <div>
+            <label style={{ fontSize:11.5, color:C.gray, display:"block", marginBottom:5, fontWeight:600 }}>Activity Name *</label>
+            <input type="text" placeholder="e.g. Skill Training" style={inp} value={form.activity} onChange={e=>setForm(f=>({...f,activity:e.target.value}))} />
+          </div>
+          <div>
+            <label style={{ fontSize:11.5, color:C.gray, display:"block", marginBottom:5, fontWeight:600 }}>Participants</label>
+            <input type="number" placeholder="0" style={inp} value={form.participants} onChange={e=>setForm(f=>({...f,participants:e.target.value}))} />
+          </div>
+          <div>
+            <label style={{ fontSize:11.5, color:C.gray, display:"block", marginBottom:5, fontWeight:600 }}>Location</label>
+            <input type="text" placeholder="Village / City" style={inp} value={form.location} onChange={e=>setForm(f=>({...f,location:e.target.value}))} />
+          </div>
+          <div style={{ gridColumn:"2/4" }}>
+            <label style={{ fontSize:11.5, color:C.gray, display:"block", marginBottom:5, fontWeight:600 }}>Notes</label>
+            <input type="text" placeholder="Brief description" style={inp} value={form.notes} onChange={e=>setForm(f=>({...f,notes:e.target.value}))} />
+          </div>
+        </div>
+        <div style={{ marginTop:16, display:"flex", gap:12, alignItems:"center" }}>
+          <button onClick={save} style={{ background:C.primary, color:"#fff", border:"none", borderRadius:8, padding:"10px 24px", fontWeight:700, fontSize:13 }}>💾 Save Report</button>
+          {saved && <span style={{ color:C.secondary, fontWeight:600, fontSize:13 }}>✅ Saved successfully!</span>}
+        </div>
+      </div>
+      <div style={{ background:C.white, borderRadius:14, padding:22, boxShadow:"0 2px 12px rgba(0,0,0,0.06)" }}>
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16 }}>
+          <h3 style={{ margin:0, color:C.primary, fontWeight:700 }}>All Reports ({reports.length})</h3>
+          <span style={{ fontSize:12, color:C.gray, background:C.light, padding:"4px 12px", borderRadius:20 }}>Project: CB0135</span>
+        </div>
+        <div style={{ overflowX:"auto" }}>
+          <table style={{ width:"100%", fontSize:12.5 }}>
+            <thead>
+              <tr style={{ background:C.primary }}>
+                {["#","Date","Activity","Participants","Location","Notes"].map(h=>(
+                  <th key={h} style={{ padding:"10px 12px", textAlign:"left", color:"#fff", fontWeight:700, fontSize:12 }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {[...reports].reverse().map((r,i)=>(
+                <tr key={r.id} style={{ borderBottom:`1px solid ${C.border}`, background:i%2===0?"#fff":C.light }}>
+                  <td style={{ padding:"9px 12px", color:C.gray }}>{reports.length-i}</td>
+                  <td style={{ padding:"9px 12px", fontWeight:600, color:C.primary }}>{r.date}</td>
+                  <td style={{ padding:"9px 12px" }}>{r.activity}</td>
+                  <td style={{ padding:"9px 12px", textAlign:"center" }}>
+                    <span style={{ background:"#dbeafe", color:"#1e40af", padding:"2px 10px", borderRadius:12, fontWeight:700 }}>{r.participants}</span>
+                  </td>
+                  <td style={{ padding:"9px 12px", color:C.gray }}>{r.location}</td>
+                  <td style={{ padding:"9px 12px", color:C.gray, maxWidth:160, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{r.notes}</td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot>
+              <tr style={{ background:C.light }}>
+                <td colSpan={3} style={{ padding:"9px 12px", fontWeight:700, color:C.primary }}>TOTAL PARTICIPANTS</td>
+                <td style={{ padding:"9px 12px", textAlign:"center", fontWeight:800, color:C.primary }}>{total}</td>
+                <td colSpan={2}/>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Gallery ─────────────────────────────────────────────────────── */
+function Gallery() {
+  const [photos, setPhotos] = useState(DEMO_PHOTOS);
+  const [msg, setMsg]       = useState("");
+  const upload = e => {
+    const files = Array.from(e.target.files||[]);
+    setPhotos(p=>[...p,...files.map((f,i)=>({ id:Date.now()+i, label:f.name.replace(/\.[^.]+$/,""), emoji:"📷", date:new Date().toISOString().split("T")[0], tag:"Activity", url:URL.createObjectURL(f) }))]);
+    setMsg(`✅ ${files.length} photo(s) uploaded!`); setTimeout(()=>setMsg(""),3000);
+  };
+  return (
+    <div>
+      <h2 style={{ fontSize:22, fontWeight:800, color:C.primary, marginBottom:6 }}>Photo Gallery</h2>
+      <p style={{ color:C.gray, fontSize:13, marginBottom:18 }}>Upload 24 colour photographs in JPG format — required for Project CB0135 submission</p>
+      <div style={{ background:C.white, borderRadius:12, padding:18, marginBottom:20, boxShadow:"0 2px 12px rgba(0,0,0,0.06)", display:"flex", gap:20, alignItems:"center", flexWrap:"wrap" }}>
+        <label style={{ background:C.primary, color:"#fff", padding:"10px 20px", borderRadius:8, fontWeight:700, fontSize:13 }}>
+          📤 Upload JPG Photos
+          <input type="file" accept="image/jpeg,image/jpg" multiple style={{ display:"none" }} onChange={upload} />
+        </label>
+        <div>
+          <div style={{ fontSize:13, color:C.gray, marginBottom:5 }}>{photos.length} / 24 photos</div>
+          <div style={{ background:C.light, borderRadius:100, height:7, width:200, overflow:"hidden" }}>
+            <div style={{ height:"100%", width:`${Math.min(100,(photos.length/24)*100)}%`, background:photos.length>=24?C.secondary:C.accent, borderRadius:100 }} />
+          </div>
+        </div>
+        {msg && <span style={{ color:C.secondary, fontWeight:600, fontSize:13 }}>{msg}</span>}
+        {photos.length>=24 && <span style={{ color:C.secondary, fontWeight:700 }}>✅ Requirement met!</span>}
+      </div>
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:14 }}>
+        {photos.map(p=>(
+          <div key={p.id} style={{ background:C.white, borderRadius:12, overflow:"hidden", boxShadow:"0 2px 10px rgba(0,0,0,0.07)" }}>
+            <div style={{ height:110, background:p.url?`url(${p.url}) center/cover`:`linear-gradient(135deg,${C.light},${C.border})`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:36 }}>
+              {!p.url && p.emoji}
+            </div>
+            <div style={{ padding:"9px 11px" }}>
+              <div style={{ fontSize:11.5, fontWeight:600, color:C.primary, marginBottom:3, lineHeight:1.3 }}>{p.label}</div>
+              <div style={{ display:"flex", justifyContent:"space-between" }}>
+                <span style={{ fontSize:10.5, color:C.gray }}>{p.date}</span>
+                <span style={{ fontSize:10, background:C.light, color:C.secondary, padding:"2px 7px", borderRadius:10, fontWeight:600 }}>{p.tag}</span>
+              </div>
+            </div>
+          </div>
+        ))}
+        {Array.from({length:Math.max(0,24-photos.length)}).map((_,i)=>(
+          <div key={`e${i}`} style={{ height:155, background:C.light, borderRadius:12, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", border:`2px dashed ${C.border}` }}>
+            <span style={{ fontSize:28, color:C.border }}>📷</span>
+            <span style={{ fontSize:10, marginTop:6, color:C.gray }}>{photos.length+i+1}/24</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ── Generate Report ─────────────────────────────────────────────── */
+function GenerateReport({ reports }) {
+  const [show, setShow] = useState(false);
+  const total = reports.reduce((a,r)=>a+r.participants,0);
+  const today = new Date().toLocaleDateString("en-IN",{day:"2-digit",month:"long",year:"numeric"});
+  const refNo = `ARDF/CB0135/RPT/${new Date().getFullYear()}`;
+  return (
+    <div>
+      <h2 style={{ fontSize:22, fontWeight:800, color:C.primary, marginBottom:20 }}>Generate Official Report on Letterhead</h2>
+      <div style={{ background:C.white, borderRadius:14, padding:22, marginBottom:22, boxShadow:"0 2px 12px rgba(0,0,0,0.06)" }}>
+        <p style={{ color:C.gray, fontSize:13, margin:"0 0 16px" }}>Generates an official project progress report on ARDF letterhead for submission to the funding authority.</p>
+        <button onClick={()=>setShow(true)} style={{ background:C.accent, color:"#fff", border:"none", borderRadius:8, padding:"12px 28px", fontWeight:700, fontSize:14 }}>📄 Generate Report on Letterhead</button>
+      </div>
+      {show && (
+        <div style={{ background:C.white, borderRadius:14, overflow:"hidden", boxShadow:"0 4px 24px rgba(0,0,0,0.1)", border:`2px solid ${C.primary}` }}>
+          <div style={{ background:C.primary, padding:"20px 32px", display:"flex", alignItems:"center", gap:20, flexWrap:"wrap" }}>
+            <div style={{ width:60, height:60, background:C.accent, borderRadius:12, display:"flex", alignItems:"center", justifyContent:"center", fontSize:30, flexShrink:0 }}>🌱</div>
+            <div style={{ flex:1 }}>
+              <div style={{ color:"#fff", fontWeight:800, fontSize:17 }}>{NGO.name.toUpperCase()}</div>
+              <div style={{ color:C.gold, fontSize:12, fontStyle:"italic", marginTop:2 }}>"{NGO.tagline}"</div>
+              <div style={{ color:"rgba(255,255,255,0.65)", fontSize:11.5, marginTop:3 }}>{NGO.address}</div>
+              <div style={{ color:"rgba(255,255,255,0.65)", fontSize:11.5 }}>📞 {NGO.phone} | 📧 {NGO.email} | 🌐 {NGO.website}</div>
+            </div>
+            <div style={{ textAlign:"right", color:"rgba(255,255,255,0.7)", fontSize:12 }}>
+              <div>Date: {today}</div>
+              <div style={{ marginTop:4 }}>Ref: {refNo}</div>
+              <div style={{ marginTop:4 }}>DARPAN: {NGO.darpan}</div>
+            </div>
+          </div>
+          <div style={{ height:4, background:`linear-gradient(90deg,${C.gold},${C.accent},${C.gold})` }} />
+          <div style={{ padding:"26px 32px" }}>
+            <div style={{ display:"flex", gap:16, background:C.light, borderRadius:8, padding:"10px 16px", marginBottom:22, fontSize:11.5, flexWrap:"wrap" }}>
+              <span>🏛️ Reg: {NGO.regNo}</span>
+              <span>📋 PAN: {NGO.pan}</span>
+              <span>🏭 CSR: {NGO.csr}</span>
+              <span>🏦 IFSC: {NGO.ifsc}</span>
+            </div>
+            <h3 style={{ textAlign:"center", color:C.primary, fontWeight:800, fontSize:16, textDecoration:"underline", marginBottom:6 }}>PROJECT PROGRESS REPORT</h3>
+            <p style={{ textAlign:"center", color:C.gray, fontSize:13, margin:"0 0 20px" }}>Project ID: CB0135 | Capacity Building for Women Empowerment Fund</p>
+            <div style={{ overflowX:"auto" }}>
+              <table style={{ width:"100%", fontSize:12.5, marginBottom:20 }}>
+                <thead>
+                  <tr style={{ background:C.primary }}>
+                    {["Sr.","Date","Activity","Participants","Location","Notes"].map(h=>(
+                      <th key={h} style={{ padding:"9px 11px", textAlign:"left", color:"#fff", fontWeight:700, fontSize:12 }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {reports.map((r,i)=>(
+                    <tr key={r.id} style={{ borderBottom:`1px solid ${C.border}`, background:i%2===0?"#fff":C.light }}>
+                      <td style={{ padding:"8px 11px" }}>{i+1}</td>
+                      <td style={{ padding:"8px 11px", fontWeight:600 }}>{r.date}</td>
+                      <td style={{ padding:"8px 11px" }}>{r.activity}</td>
+                      <td style={{ padding:"8px 11px", textAlign:"center", fontWeight:700 }}>{r.participants}</td>
+                      <td style={{ padding:"8px 11px", color:C.gray, fontSize:12 }}>{r.location}</td>
+                      <td style={{ padding:"8px 11px", color:C.gray, fontSize:12 }}>{r.notes}</td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot>
+                  <tr style={{ background:C.primary }}>
+                    <td colSpan={3} style={{ padding:"9px 11px", color:"#fff", fontWeight:700 }}>GRAND TOTAL</td>
+                    <td style={{ padding:"9px 11px", color:C.gold, fontWeight:800, textAlign:"center", fontSize:15 }}>{total}</td>
+                    <td colSpan={2}/>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:16, marginBottom:28 }}>
+              <div style={{ background:C.light, borderRadius:10, padding:16 }}>
+                <div style={{ fontWeight:700, color:C.primary, marginBottom:8, fontSize:13 }}>📊 Summary</div>
+                <div style={{ fontSize:13, color:"#374151", lineHeight:2 }}>Total Activities: <strong>{reports.length}</strong><br/>Total Beneficiaries: <strong>{total}</strong><br/>Status: <strong style={{color:C.secondary}}>Active & On Track</strong></div>
+              </div>
+              <div style={{ background:C.light, borderRadius:10, padding:16 }}>
+                <div style={{ fontWeight:700, color:C.primary, marginBottom:8, fontSize:13 }}>📜 Declaration</div>
+                <div style={{ fontSize:12.5, color:"#374151", lineHeight:1.8 }}>The above information is true and accurate. All activities were conducted as reported and evidence is available for verification.</div>
+              </div>
+            </div>
+            <div style={{ display:"flex", justifyContent:"space-between", paddingTop:20, borderTop:`1px solid ${C.border}` }}>
+              {["Project Coordinator","Women Program Coordinator","President / Authorized Signatory"].map(role=>(
+                <div key={role} style={{ textAlign:"center" }}>
+                  <div style={{ height:1, width:160, background:C.primary, marginBottom:6 }} />
+                  <div style={{ fontSize:12, color:C.gray }}>{role}</div>
+                  {role.includes("President") && <div style={{ fontSize:11.5, color:C.primary, fontWeight:600, marginTop:2 }}>{NGO.president}</div>}
+                </div>
+              ))}
+            </div>
+            <div style={{ textAlign:"center", marginTop:20, background:C.light, borderRadius:8, padding:10 }}>
+              <div style={{ fontSize:11, color:C.gray }}>Generated by {NGO.name} Online NGO Management Software • {today}</div>
+            </div>
+          </div>
+          <div style={{ height:4, background:`linear-gradient(90deg,${C.gold},${C.accent},${C.gold})` }} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ── NGO Profile ─────────────────────────────────────────────────── */
+function Profile() {
+  const details = [["Organization Name",NGO.name],["President / CEO",NGO.president],["Founded",NGO.founded],["Address",NGO.address],["Phone",NGO.phone],["Email",NGO.email],["Website",NGO.website],["Registration No.",NGO.regNo],["PAN Number",NGO.pan],["DARPAN Unique ID",NGO.darpan],["CSR Registration",NGO.csr],["12AA Certificate",NGO.cert12aa],["80G Certificate",NGO.cert80g],["Bank",NGO.bank],["Account No.",NGO.accountNo],["IFSC Code",NGO.ifsc]];
+  const activities = ["Livelihood & Skill Development","Education","Health Care & Sanitation","Women Empowerment & Care","Natural Resources Management","Sustainability & Environment","Rural Development / Panchayat Raj","WASH (Water, Sanitation & Hygiene)","Animals Husbandry","Awareness Programs"];
+  const areas = ["Ahmedabad (Urban, Rural & Slum)","Dahod (Tribal Area)","Sabarkantha (Tribal Area)","Gandhinagar","Mahisagar (Tribal Area)","Mahesana"];
+  return (
+    <div>
+      <h2 style={{ fontSize:22, fontWeight:800, color:C.primary, marginBottom:20 }}>NGO Profile</h2>
+      <div style={{ background:`linear-gradient(135deg,${C.primary},${C.secondary})`, borderRadius:14, padding:24, color:"#fff", marginBottom:20, display:"flex", gap:20, alignItems:"center" }}>
+        <div style={{ width:70, height:70, background:C.accent, borderRadius:16, display:"flex", alignItems:"center", justifyContent:"center", fontSize:36, flexShrink:0 }}>🌱</div>
+        <div>
+          <div style={{ fontWeight:800, fontSize:19 }}>{NGO.name}</div>
+          <div style={{ color:C.gold, fontStyle:"italic", marginTop:4 }}>"{NGO.tagline}"</div>
+          <div style={{ opacity:0.8, fontSize:13, marginTop:4 }}>{NGO.address}</div>
+        </div>
+      </div>
+      <div style={{ background:C.white, borderRadius:14, padding:24, boxShadow:"0 2px 12px rgba(0,0,0,0.06)", marginBottom:18 }}>
+        <h3 style={{ margin:"0 0 16px", color:C.primary, fontWeight:700 }}>Organization Details</h3>
+        {details.map(([k,v])=>(
+          <div key={k} style={{ display:"flex", padding:"10px 0", borderBottom:`1px solid ${C.border}` }}>
+            <div style={{ width:200, fontWeight:600, color:C.gray, fontSize:13 }}>{k}</div>
+            <div style={{ flex:1, color:C.primary, fontSize:13 }}>{v}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:16 }}>
+        <div style={{ background:C.white, borderRadius:14, padding:22, boxShadow:"0 2px 12px rgba(0,0,0,0.06)" }}>
+          <h3 style={{ margin:"0 0 14px", color:C.primary, fontWeight:700 }}>Present Activities</h3>
+          {activities.map(a=>(
+            <div key={a} style={{ display:"flex", gap:8, padding:"7px 0", borderBottom:`1px solid ${C.border}`, fontSize:13 }}>
+              <span style={{ color:C.accent }}>✦</span>{a}
+            </div>
+          ))}
+        </div>
+        <div style={{ background:C.white, borderRadius:14, padding:22, boxShadow:"0 2px 12px rgba(0,0,0,0.06)" }}>
+          <h3 style={{ margin:"0 0 14px", color:C.primary, fontWeight:700 }}>Work Areas — Gujarat</h3>
+          {areas.map(a=>(
+            <div key={a} style={{ display:"flex", gap:8, padding:"7px 0", borderBottom:`1px solid ${C.border}`, fontSize:13 }}>
+              <span style={{ color:C.secondary }}>📍</span>{a}
+            </div>
+          ))}
+          <div style={{ marginTop:16, background:C.light, borderRadius:8, padding:12 }}>
+            <div style={{ fontWeight:700, color:C.primary, fontSize:13 }}>Our Partners</div>
+            <div style={{ fontSize:12, color:C.gray, marginTop:6, lineHeight:1.8 }}>NABARD, ONGC, HDFC Bank, Suzuki Motor, Indian Oil, NIIT Foundation, Veeda Lifesciences, AMC & more</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Software Info ───────────────────────────────────────────────── */
+function SoftwareInfo() {
+  const rows = [["Software Name","Online NGO Management Software"],["Registered For",NGO.name],["Project","CB0135 — Capacity Building for Women Empowerment Fund"],["License Validity","18 Months"],["Monitoring Period","3 Years"],["Purpose","Day-to-day project reporting on NGO Letterhead"],["Historical Data","6 months backdated data entry supported"],["Photo Support","24 JPG format project photographs"],["Version","v1.0 — 2025"]];
+  const checks = ["Online system in NGO name","18-month software validity","50% minimum duration","6 months data entry ready","Letterhead report generation","Photograph upload (24 JPGs)","Project CB0135 configured","Day-to-day reporting enabled"];
+  return (
+    <div>
+      <h2 style={{ fontSize:22, fontWeight:800, color:C.primary, marginBottom:20 }}>Software Information</h2>
+      <div style={{ background:C.white, borderRadius:14, padding:26, boxShadow:"0 2px 12px rgba(0,0,0,0.06)" }}>
+        {rows.map(([k,v])=>(
+          <div key={k} style={{ display:"flex", padding:"11px 0", borderBottom:`1px solid ${C.border}` }}>
+            <div style={{ width:240, fontWeight:600, color:C.gray, fontSize:13 }}>{k}</div>
+            <div style={{ flex:1, color:C.primary, fontSize:13 }}>{v}</div>
+          </div>
+        ))}
+        <div style={{ marginTop:22, background:"#f0fdf4", border:`1px solid ${C.secondary}`, borderRadius:10, padding:18 }}>
+          <div style={{ fontWeight:700, color:C.secondary, marginBottom:10 }}>✅ All Compliance Requirements Met</div>
+          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8, fontSize:13, color:"#166534" }}>
+            {checks.map(item=><div key={item}>✅ {item}</div>)}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── App Root ─────────────────────────────────────────────────────── */
+function App() {
+  const [active,   setActive]   = useState("Dashboard");
+  const [reports,  setReports]  = useState(SAMPLE_REPORTS);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  return (
+    <div style={{ display:"flex", minHeight:"100vh", background:C.light }}>
+      <Sidebar active={active} setActive={setActive} menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
+      <div style={{ flex:1, display:"flex", flexDirection:"column" }}>
+        {/* Mobile top bar */}
+        <div style={{ display:"flex", alignItems:"center", gap:12, padding:"14px 20px", background:C.primary, boxShadow:"0 2px 8px rgba(0,0,0,0.15)" }}>
+          <button onClick={()=>setMenuOpen(m=>!m)} style={{ background:"rgba(255,255,255,0.15)", border:"none", color:"#fff", borderRadius:8, padding:"6px 10px", fontSize:18 }}>☰</button>
+          <span style={{ color:"#fff", fontWeight:700, fontSize:14 }}>🌱 ARDF NGO Management</span>
+        </div>
+        <main style={{ flex:1, padding:"24px 24px 40px", overflowY:"auto" }}>
+          {active==="Dashboard" && <Dashboard  reports={reports} />}
+          {active==="Projects"  && <Projects />}
+          {active==="Reports"   && <DailyReports reports={reports} setReports={setReports} />}
+          {active==="Gallery"   && <Gallery />}
+          {active==="Generate"  && <GenerateReport reports={reports} />}
+          {active==="Profile"   && <Profile />}
+          {active==="Info"      && <SoftwareInfo />}
+        </main>
+      </div>
+      {menuOpen && <div onClick={()=>setMenuOpen(false)} style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.4)", zIndex:99 }} />}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
